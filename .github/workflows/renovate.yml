@@ -18,3 +18,10 @@ jobs:
         run: cd /usr/local && { curl -L https://dl.dagger.io/dagger/install.sh | sh; cd -; }
       - name: Display Helm module functions
         run: dagger functions
+      - name: Dagger renovate
+        run: |
+          dagger call git-hub \
+              --config ./config/config.json5 \
+              --github-read-token env:MY_GH_PAT \
+              --github-write-token env:MY_GH_PAT \
+              --renovate-repositories "['chrira/dagger-module-helm']"
