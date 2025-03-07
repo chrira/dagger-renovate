@@ -1,0 +1,42 @@
+{
+
+    
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "allowCommandTemplating": true, // for post upgrade task
+    "allowedCommands": [
+      "^curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=.* BIN_DIR=/tmp/ sh$",
+      "^/tmp/dagger call -m .* develop$"
+    ],
+    "customManagers": [
+      {
+        "customType": "regex",
+        "fileMatch": ["(^|/)dagger\\.json$"],
+        "matchStrings": [
+            "\"engineVersion\":\\s*\"(?<currentValue>.*?)\""
+        ],
+        "datasourceTemplate": "github-releases",
+        "depNameTemplate": "dagger/dagger"
+      }
+    ],
+    "packageRules": [
+      {
+        "matchDepNames": ["dagger/dagger"],
+        "branchPrefix": "renovate/",
+        "additionalBranchPrefix": "{{packageFileDir}}-", // one PR for every module inside the repo
+        "postUpgradeTasks": {
+          "commands": [
+            "curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION={{newVersion}} BIN_DIR=/tmp/ sh",
+            "/tmp/dagger call -m {{packageFileDir}} develop"
+          ],
+          // TODO "fileFilters": ["{{packageFileDir}}/**/*.*"], ?
+          "fileFilters": ["**/**"],
+          "executionMode": "update"
+        }
+      },
+      {
+          "matchFileNames": ["**/go.mod"], // go.mod is managed by dagger
+          "enabled": false
+      }
+        // TODO add exclusions for other Dagger SDK's
+    ]
+}
