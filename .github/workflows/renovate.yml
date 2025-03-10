@@ -23,5 +23,5 @@ jobs:
           dagger call git-hub \
               --config ./config/config.json5 \
               --github-read-token env:MY_GH_PAT \
-              --github-write-token env:MY_GH_PAT \
+              --github-write-token env:MY_GH_WRITE_PAT \
               --renovate-repositories "['chrira/dagger-module-helm']"
