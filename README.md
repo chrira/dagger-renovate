@@ -73,5 +73,6 @@ dagger call git-lab \
 ```sh
 dagger call git-hub \
     --config ./config/config.json5 \
-    --githubToken env:MY_GH_PAT
+    --github-read-token env:MY_GH_PAT \
+    --github-write-token env:MY_GH_WRITE_PAT
 ```
