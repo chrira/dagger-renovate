@@ -10,6 +10,7 @@ package main
 import (
 	"context"
 	"dagger/renovate/internal/dagger"
+	"time"
 )
 
 type Renovate struct{}
@@ -41,7 +42,7 @@ func (m *Renovate) Local(
 		Terminal().
 		WithExec([]string{
 			"renovate",
-				"--allowed-commands=\"[\"^dagger call\\s*.*?develop$\"]\"", // for post upgrade task
+				"--allowed-commands=\"[\"^dagger\\s*.*?develop$\"]\"", // for post upgrade task
 				"--allow-command-templating=true", // for post upgrade task
 				"--platform=local",
 			}).
@@ -157,11 +158,21 @@ func (m *Renovate) renovateContainer(
 	// +optional
 	token *dagger.Secret,
 ) *dagger.Container {
+	// Start an ephemeral dockerd
+	dockerd := dag.Docker().Engine(dagger.DockerEngineOpts{
+		Persist: false,
+	})
+
 	container := dag.Container().
 		/* official renovate image
 		From("docker.io/renovate/renovate:39.173").
 		*/
 		From("registry.access.redhat.com/ubi9/nodejs-20:9.5-1739783265").
+
+		WithServiceBinding("dockerd", dockerd).
+		WithEnvVariable("DOCKER_HOST", "tcp://dockerd:2375").
+		//WithEnvVariable("_EXPERIMENTAL_DAGGER_RUNNER_HOST", "tcp://dockerd:2375").
+
 		/*
 		From("registry.access.redhat.com/ubi9/openjdk-17:1.18-1").
 		WithUser("root").
@@ -195,12 +206,20 @@ func (m *Renovate) renovateContainer(
 		WithExec([]string{"chown", "-R", "1001", "/tmp/"}). // make tmp dir owned by container user
 		WithExec([]string{"chgrp", "-R", "0", "/tmp/"}). // make tmp dir group modifiable
 		WithExec([]string{"chmod", "-R", "g=u", "/tmp/"}). // make tmp dir group modifiable
+		WithExec([]string{"mkdir", "/src/"}). // prepare /src dir
+		WithExec([]string{"chown", "-R", "1001", "/src/"}). // make src dir owned by container user
+		WithExec([]string{"chgrp", "-R", "0", "/src/"}). // make src dir group modifiable
+		WithExec([]string{"chmod", "-R", "g=u", "/src/"}). // make src dir group modifiable
 		WithUser("1001").
 		WithEnvVariable("LOG_LEVEL", "debug")
 
 	if (token != nil) {
 		 // optional, not used when running on github.com
-		return container.WithSecretVariable("GITHUB_COM_TOKEN", token)
+		container = container.WithSecretVariable("GITHUB_COM_TOKEN", token)
 	}
+
+	// invalidate the cache to never cache the renovate execution
+	container = container.WithEnvVariable("CACHEBUSTER", time.Now().String())
+
 	return container
 }

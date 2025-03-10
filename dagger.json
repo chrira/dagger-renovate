@@ -1,8 +1,15 @@
 {
   "name": "renovate",
-  "engineVersion": "v0.15.4",
+  "engineVersion": "v0.16.2",
   "sdk": {
     "source": "go"
   },
+  "dependencies": [
+    {
+      "name": "docker",
+      "source": "github.com/shykes/daggerverse/docker@docker/v0.4.3",
+      "pin": "c9a80c9eac0675a53a7e052da3594207f4235988"
+    }
+  ],
   "source": "bot"
 }

@@ -2,10 +2,12 @@
 
     
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    // TODO: move to internal config?
     "allowCommandTemplating": true, // for post upgrade task
+    // TODO: move to internal config?
     "allowedCommands": [
       "^curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=.* BIN_DIR=/tmp/ sh$",
-      "^/tmp/dagger call -m .* develop$"
+      "^/tmp/dagger -m .* develop$"
     ],
     "customManagers": [
       {
@@ -26,7 +28,7 @@
         "postUpgradeTasks": {
           "commands": [
             "curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION={{newVersion}} BIN_DIR=/tmp/ sh",
-            "/tmp/dagger call -m {{packageFileDir}} develop"
+            "/tmp/dagger -m {{packageFileDir}} develop"
           ],
           // TODO "fileFilters": ["{{packageFileDir}}/**/*.*"], ?
           "fileFilters": ["**/**"],
