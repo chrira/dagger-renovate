@@ -22,6 +22,7 @@ jobs:
         run: dagger functions
       - name: Dagger renovate
         env:
+          MY_GH_PAT: ${{ secrets.MY_GH_PAT }}
           MY_GH_WRITE_PAT: ${{ secrets.MY_GH_WRITE_PAT }}
         run: |
           dagger call git-hub \
