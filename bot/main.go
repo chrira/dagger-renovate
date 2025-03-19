@@ -36,9 +36,9 @@ func (m *Renovate) Local(
 	token *dagger.Secret,
 ) (string, error) {
 	return m.renovateContainer(ctx, config, token).
-		WithMountedDirectory("/usr/src/app/", src, dagger.ContainerWithMountedDirectoryOpts{Owner: "1001"}).
+		//WithMountedDirectory("/usr/src/app/", src, dagger.ContainerWithMountedDirectoryOpts{Owner: "1001"}).
 		//WithMountedDirectory("/usr/src/app/", src, dagger.ContainerWithMountedDirectoryOpts{Owner: "ubuntu"}).
-		//WithMountedDirectory("/usr/src/app/", src).
+		WithMountedDirectory("/usr/src/app/", src).
 		Terminal().
 		WithExec([]string{
 			"renovate",
@@ -121,6 +121,7 @@ func (m *Renovate) GitHub(
 			},
 		).
 		*/
+		// Terminal().
 		WithExec(
 			[]string{"renovate"},
 			dagger.ContainerWithExecOpts{
@@ -164,13 +165,16 @@ func (m *Renovate) renovateContainer(
 	})
 
 	container := dag.Container().
-		/* official renovate image
+		// official renovate image
 		From("docker.io/renovate/renovate:39.173").
-		*/
-		From("registry.access.redhat.com/ubi9/nodejs-20:9.5-1739783265").
+		//From("registry.access.redhat.com/ubi9/nodejs-20:9.5-1739783265").
 
 		WithServiceBinding("dockerd", dockerd).
 		WithEnvVariable("DOCKER_HOST", "tcp://dockerd:2375").
+
+		//WithEnvVariable("GOPROXY", "direct").
+		//WithEnvVariable("GOPROXY", "https://goproxy.io").
+
 		//WithEnvVariable("_EXPERIMENTAL_DAGGER_RUNNER_HOST", "tcp://dockerd:2375").
 
 		/*
@@ -185,21 +189,28 @@ func (m *Renovate) renovateContainer(
 		WithExec([]string{"microdnf", "install", "-y", "docker-ce"}).
 		*/
 
-		WithUser("root").
-		WithExec([]string{"npm", "install", "-g", "renovate", "yarn", "pnpm"}). // TODO take fix renovate version and let it update by mr
+		//WithUser("root").
+		//WithExec([]string{"npm", "install", "-g", "renovate", "yarn", "pnpm"}). // TODO take fix renovate version and let it update by mr
 		
+		/*
 		// install docker
 		WithExec([]string{"yum", "install", "-y", "yum-utils", "device-mapper-persistent-data", "lvm2"}).
 		WithExec([]string{"yum-config-manager", "--add-repo", "https://download.docker.com/linux/centos/docker-ce.repo"}).
 		WithExec([]string{"yum", "install", "-y", "docker-ce"}).
 		// docker ohne sudo
 		WithExec([]string{"usermod", "-aG", "docker", "default"}).
+		*/
 
-		WithUser("1001").
+		WithUser("root").
+		WithExec([]string{"mkdir", "-p", "/src/helm"}).
+		WithExec([]string{"touch", "/schema.json"}).
+		WithUser("ubuntu").
+
+		//WithUser("1001").
 		WithWorkdir("/usr/src/app/").
 		WithFile("/tmp/config.json5", config).
 		WithEnvVariable("RENOVATE_CONFIG_FILE", "/tmp/config.json5").
-		WithUser("root").
+		/*WithUser("root").
 		WithExec([]string{"chown", "-R", "1001", "/usr/src/app/"}). // make workdir owned by container user
 		WithExec([]string{"chgrp", "-R", "0", "/usr/src/app/"}). // make workdir group modifiable
 		WithExec([]string{"chmod", "-R", "g=u", "/usr/src/app/"}). // make workdir group modifiable
@@ -211,6 +222,23 @@ func (m *Renovate) renovateContainer(
 		WithExec([]string{"chgrp", "-R", "0", "/src/"}). // make src dir group modifiable
 		WithExec([]string{"chmod", "-R", "g=u", "/src/"}). // make src dir group modifiable
 		WithUser("1001").
+		*/
+
+
+		WithUser("root").
+		WithExec([]string{"chown", "-R", "ubuntu", "/usr/src/app/"}). // make workdir owned by container user
+		WithExec([]string{"chgrp", "-R", "0", "/usr/src/app/"}). // make workdir group modifiable
+		WithExec([]string{"chmod", "-R", "g=u", "/usr/src/app/"}). // make workdir group modifiable
+		WithExec([]string{"chown", "-R", "ubuntu", "/tmp/"}). // make tmp dir owned by container user
+		WithExec([]string{"chgrp", "-R", "0", "/tmp/"}). // make tmp dir group modifiable
+		WithExec([]string{"chmod", "-R", "g=u", "/tmp/"}). // make tmp dir group modifiable
+		WithExec([]string{"mkdir", "-p", "/src/"}). // prepare /src dir
+		WithExec([]string{"chown", "-R", "ubuntu", "/src/"}). // make src dir owned by container user
+		WithExec([]string{"chgrp", "-R", "0", "/src/"}). // make src dir group modifiable
+		WithExec([]string{"chmod", "-R", "g=u", "/src/"}). // make src dir group modifiable
+		WithUser("ubuntu").
+
+
 		WithEnvVariable("LOG_LEVEL", "debug")
 
 	if (token != nil) {
