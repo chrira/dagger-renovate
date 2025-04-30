@@ -7,18 +7,8 @@
     // TODO: move to internal config?
     "allowedCommands": [
       "^curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=.* BIN_DIR=/tmp/ sh$",
-      "^whoami$",
-      "^pwd$",
-      "^ls -l .*$",
-      "^cat /etc/resolv.conf*$",
-      "^curl https://proxy.golang.org*$",
-      "^/tmp/dagger -m github.com/felipepimentel/daggerverse/essentials/curl@v0.0.0 call get --url proxy.golang.org stdout*$",
-      "^/tmp/dagger init --sdk go --source s*$",
-      "^mkdir -p /src/s*$",
-      "^ls -l /src/*$",
       "^/tmp/dagger -m .* develop$"
     ],
-    // "baseDir": "/usr/src/app",
     "customManagers": [
       {
         "customType": "regex",
@@ -30,6 +20,17 @@
         "depNameTemplate": "dagger/dagger"
       }
     ],
+    "ignorePresets": [":ignorePaths"],
+    "ignorePaths": [ // overwrite defaults from "extends": ["config:recommended"],
+      "**/node_modules/**",
+      "**/bower_components/**",
+      "**/vendor/**",
+      // "**/examples/**",
+      "**/__tests__/**",
+      // "**/test/**",
+      // "**/tests/**",
+      "**/__fixtures__/**"
+    ],
     "packageRules": [
       {
         "matchDepNames": ["dagger/dagger"],
@@ -38,15 +39,6 @@
         "postUpgradeTasks": {
           "commands": [
             "curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION={{newVersion}} BIN_DIR=/tmp/ sh",
-            "whoami",
-            "pwd",
-            "ls -l .",
-            "cat /etc/resolv.conf",
-            "curl https://proxy.golang.org",
-            "/tmp/dagger -m github.com/felipepimentel/daggerverse/essentials/curl@v0.0.0 call get --url proxy.golang.org stdout",
-            "/tmp/dagger init --sdk go --source s",
-            "mkdir -p /src/s",
-            "ls -l /src/",
             "/tmp/dagger -m {{packageFileDir}} develop"
           ],
           // TODO "fileFilters": ["{{packageFileDir}}/**/*.*"], ?
