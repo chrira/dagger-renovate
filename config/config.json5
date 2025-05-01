@@ -35,6 +35,7 @@
       {
         "matchDepNames": ["dagger/dagger"],
         "branchPrefix": "renovate/",
+        "commitMessagePrefix": "{{packageFileDir}} - ",
         "additionalBranchPrefix": "{{packageFileDir}}-", // one PR for every module inside the repo
         "postUpgradeTasks": {
           "commands": [
