@@ -25,8 +25,9 @@ jobs:
           MY_GH_PAT: ${{ secrets.MY_GH_PAT }}
           MY_GH_WRITE_PAT: ${{ secrets.MY_GH_WRITE_PAT }}
         run: |
-          dagger call git-hub \
+          dagger call gh \
               --config ./config/config.json5 \
               --github-read-token env:MY_GH_PAT \
               --github-write-token env:MY_GH_WRITE_PAT \
-              --renovate-repositories "['chrira/dagger-module-helm']"
+              --renovate-repositories "['chrira/dagger-module-helm-genius']" \
+              --docker-sock /var/run/docker.sock
