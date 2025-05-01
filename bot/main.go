@@ -398,6 +398,14 @@ sudo docker run \
   --env RENOVATE_TOKEN=${MY_GH_WRITE_PAT} \
   --env RENOVATE_REPOSITORIES="['chrira/dagger-module-helm']" \
   dind-container:latest
+
+  renovate > /tmp/renovate.log
+
+  TODO:
+  no repository config with:
+  "extends": [
+    "config:recommended"
+  ],
 */
 func (m *Renovate) DindContainer(
 	ctx context.Context,
@@ -437,4 +445,87 @@ func (m *Renovate) DindContainer(
 			*/
 
 	return container
+}
+
+
+/*
+ * Dagger Engine running this method must be of version latest.
+ * If the Engine started inside this container has a different version, the outer Engine will be stopped.
+ */
+func (m *Renovate) Gh(
+	ctx context.Context,
+	// config file
+	config *dagger.File,
+	// GitHub token any-personal-user-token-for-github-com-for-fetching-changelogs
+	githubReadToken *dagger.Secret,
+	// GitHub token to do changes
+	githubWriteToken *dagger.Secret,
+	// Docker Socket
+	dockerSock *dagger.Socket,
+	// renovate repository configuration
+	// +optional
+	renovateRepositories string,
+	// Docker Engine version
+	// +optional
+	// +default="24.0"
+	version string,
+//) *dagger.Container {
+) (string, error) {
+
+
+/*
+sudo docker run \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v $(pwd)/config/:/tmp/config/:ro \
+  --entrypoint /bin/sh \
+  -ti \
+  --env RENOVATE_CONFIG_FILE="/tmp/config/config.json5" \
+  --env RENOVATE_REPOSITORIES="['chrira/dagger-module-helm']" \
+  dind-container:latest
+
+  renovate > /tmp/renovate.log
+
+
+*/
+
+
+	container := m.DindContainer(ctx, version).
+		WithEnvVariable("RENOVATE_AUTODISCOVER", "false").
+		WithEnvVariable("RENOVATE_PLATFORM", "github").
+		WithEnvVariable("RENOVATE_GIT_AUTHOR", "Renovate Bot <noreply@github.com>").
+		WithEnvVariable("LOG_LEVEL", "debug").
+		WithSecretVariable("RENOVATE_TOKEN", githubWriteToken).
+		WithSecretVariable("GITHUB_COM_TOKEN", githubReadToken).
+		WithUnixSocket("/var/run/docker.sock", dockerSock).
+		WithFile("/tmp/config.json5", config).
+		WithEnvVariable("RENOVATE_CONFIG_FILE", "/tmp/config.json5")
+
+	if renovateRepositories != "" {
+		container = container.WithEnvVariable("RENOVATE_REPOSITORIES", renovateRepositories)
+	}
+
+	return container.
+	/*
+		WithExec(
+			[]string{"docker", "version"},
+			dagger.ContainerWithExecOpts{
+				ExperimentalPrivilegedNesting: true,
+				InsecureRootCapabilities: true,
+			},
+		).
+		*/
+		/*
+		WithExec(
+			[]string{"sh", "-c", "curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR=/tmp/ sh"},
+		)
+			*/
+
+		WithExec(
+			[]string{"renovate"},
+			dagger.ContainerWithExecOpts{
+				ExperimentalPrivilegedNesting: true,
+				InsecureRootCapabilities: true,
+			},
+		).
+		Stdout(ctx)
 }

@@ -51,5 +51,8 @@
           "enabled": false
       }
         // TODO add exclusions for other Dagger SDK's
-    ]
+    ],
+    "prHourlyLimit": 0,
+    "prConcurrentLimit": 0,
+    "branchConcurrentLimit": 0
 }
