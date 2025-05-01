@@ -1,20 +1,8 @@
 {
-  "name": "renovate",
-  "engineVersion": "v0.18.1",
+  "name": "dagger-renovate",
+  "engineVersion": "v0.18.5",
   "sdk": {
     "source": "go"
   },
-  "dependencies": [
-    {
-      "name": "dagger-dev",
-      "source": "github.com/dagger/dagger",
-      "pin": "5de1ebaf5e2764dcdbfbd7ebd68ad582f1a97482"
-    },
-    {
-      "name": "docker",
-      "source": "github.com/shykes/daggerverse/docker@docker/v0.4.3",
-      "pin": "c9a80c9eac0675a53a7e052da3594207f4235988"
-    }
-  ],
   "source": "bot"
 }

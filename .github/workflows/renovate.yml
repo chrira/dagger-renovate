@@ -25,7 +25,7 @@ jobs:
           MY_GH_PAT: ${{ secrets.MY_GH_PAT }}
           MY_GH_WRITE_PAT: ${{ secrets.MY_GH_WRITE_PAT }}
         run: |
-          dagger call gh \
+          dagger call git-hub \
               --config ./config/config.json5 \
               --github-read-token env:MY_GH_PAT \
               --github-write-token env:MY_GH_WRITE_PAT \
