@@ -35,6 +35,10 @@ type DaggerRenovate struct{}
 	// renovate repository configuration
 	// +optional
 	renovateRepositories string,
+	// Use debug log level
+	// +optional
+	// +default=false
+	debug bool,
 	// Docker Engine version
 	// +optional
 	// +default="24.0"
@@ -43,12 +47,16 @@ type DaggerRenovate struct{}
 	container := m.RenovateContainer(ctx, version).
 		WithEnvVariable("RENOVATE_PLATFORM", "github").
 		WithEnvVariable("RENOVATE_GIT_AUTHOR", "Renovate Bot <noreply@github.com>").
-		WithEnvVariable("LOG_LEVEL", "debug").
 		WithSecretVariable("RENOVATE_TOKEN", githubWriteToken).
 		WithSecretVariable("GITHUB_COM_TOKEN", githubReadToken).
 		WithUnixSocket("/var/run/docker.sock", dockerSock).
 		WithFile("/tmp/config.json5", config).
 		WithEnvVariable("RENOVATE_CONFIG_FILE", "/tmp/config.json5")
+
+	if debug {
+		container = container.
+			WithEnvVariable("LOG_LEVEL", "debug")
+	}
 
 	if renovateRepositories != "" {
 		container = container.
