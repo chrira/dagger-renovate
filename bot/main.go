@@ -35,10 +35,10 @@ type DaggerRenovate struct{}
 	// renovate repository configuration
 	// +optional
 	renovateRepositories string,
-	// Use debug log level
+	// Use renovate debug log level
 	// +optional
 	// +default=false
-	debug bool,
+	showDebugLogs bool,
 	// Docker Engine version
 	// +optional
 	// +default="24.0"
@@ -53,7 +53,7 @@ type DaggerRenovate struct{}
 		WithFile("/tmp/config.json5", config).
 		WithEnvVariable("RENOVATE_CONFIG_FILE", "/tmp/config.json5")
 
-	if debug {
+	if showDebugLogs {
 		container = container.
 			WithEnvVariable("LOG_LEVEL", "debug")
 	}
