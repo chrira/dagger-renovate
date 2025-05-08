@@ -3,10 +3,16 @@ name: Renovate
 on:
   # configure manual trigger
   workflow_dispatch:
+  schedule:
+    - cron: "0 4 * * 1" # every Monday 04 AM
 
 env:
   # The Dagger CLI uses the DAGGER_CLOUD_TOKEN environment variable to authenticate with Dagger Cloud
   DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+  # github.repository as <account>/<repo>
+  GITHUB_REPOSITORY: ${{ github.repository }}
+  # github auth token
+  AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   renovate:
@@ -16,18 +22,13 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Install Dagger CLI
         run: cd /usr/local && { curl -L https://dl.dagger.io/dagger/install.sh | sh; cd -; }
-      - name: Environment infos
-        run: env | sort
-      - name: Display Helm module functions
-        run: dagger functions
       - name: Dagger renovate
-        env:
-          MY_GH_PAT: ${{ secrets.MY_GH_PAT }}
-          MY_GH_WRITE_PAT: ${{ secrets.MY_GH_WRITE_PAT }}
         run: |
-          dagger call git-hub \
-              --config ./config/config.json5 \
-              --github-read-token env:MY_GH_PAT \
-              --github-write-token env:MY_GH_WRITE_PAT \
-              --renovate-repositories "['chrira/dagger-module-helm-genius']" \
-              --docker-sock /var/run/docker.sock
+          dagger \
+              call \
+                git-hub \
+                  --config ./config/config.json5 \
+                  --github-read-token env:AUTH_TOKEN \
+                  --github-write-token env:AUTH_TOKEN \
+                  --renovate-repositories "[\"${GITHUB_REPOSITORY}\"]" \
+                  --docker-sock /var/run/docker.sock
