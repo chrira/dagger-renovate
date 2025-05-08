@@ -28,10 +28,10 @@ jobs:
       - name: Dagger renovate
         run: |
           dagger \
-              call \
-                git-hub \
-                  --config config/config.json5 \
-                  --github-read-token env:AUTH_TOKEN \
-                  --github-write-token env:AUTH_TOKEN \
-                  --renovate-repositories "[\"${GITHUB_REPOSITORY}\"]" \
-                  --docker-sock /var/run/docker.sock
+            call \
+              git-hub \
+                --config ./config/config.json5 \
+                --github-read-token env:AUTH_TOKEN \
+                --github-write-token env:AUTH_TOKEN \
+                --renovate-repositories "['${GITHUB_REPOSITORY}']" \
+                --docker-sock /var/run/docker.sock
