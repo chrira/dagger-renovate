@@ -2,6 +2,16 @@
 
 Update Dagger modules.
 
+## Configure in GitHub
+
+To run renovate in your GitHub repository for your repository use the file `.github/workflows/renovate.yml`
+
+It works unchanged in every GitHub repository when you defined the `DAGGER_CLOUD_TOKEN` secret.
+
+You must configure your GITHUB_TOKEN to have write access to your repository, see [Configuring the default GITHUB_TOKEN permissions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#configuring-the-default-github_token-permissions)
+
+Set `Workflow permissions` to `Read and write permissions` and check `Allow GitHub Actions to create and approve pull requests`.
+
 ## Local Test
 
 * https://docs.renovatebot.com/self-hosted-configuration/
