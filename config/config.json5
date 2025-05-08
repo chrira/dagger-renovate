@@ -1,59 +1,67 @@
 {
-
-    
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    // TODO: move to internal config?
-    "allowCommandTemplating": true, // for post upgrade task
-    // TODO: move to internal config?
-    "allowedCommands": [
-      "^curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=.* BIN_DIR=/tmp/ sh$",
-      "^/tmp/dagger -m .* develop$"
-    ],
-    "customManagers": [
-      {
-        "customType": "regex",
-        "fileMatch": ["(^|/)dagger\\.json$"],
-        "matchStrings": [
-            "\"engineVersion\":\\s*\"(?<currentValue>.*?)\""
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  // TODO: move to internal config?
+  "allowCommandTemplating": true, // for post upgrade task
+  // TODO: move to internal config?
+  "allowedCommands": [
+    "^curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=.* BIN_DIR=/tmp/ sh$",
+    "^/tmp/dagger -m .* develop$"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|/)dagger\\.json$"
+      ],
+      "matchStrings": [
+        "\"engineVersion\":\\s*\"(?<currentValue>.*?)\""
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "dagger/dagger"
+    }
+  ],
+  "ignorePresets": [
+    ":ignorePaths"
+  ],
+  "ignorePaths": [ // overwrite defaults from "extends": ["config:recommended"],
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**",
+    // "**/examples/**",
+    "**/__tests__/**",
+    // "**/test/**",
+    // "**/tests/**",
+    "**/__fixtures__/**"
+  ],
+  "packageRules": [
+    {
+      "matchDepNames": [
+        "dagger/dagger"
+      ],
+      "branchPrefix": "renovate/",
+      "commitMessagePrefix": "Module {{packageFileDir}} - ",
+      "additionalBranchPrefix": "{{packageFileDir}}-", // one PR for every module inside the repo
+      "postUpgradeTasks": {
+        "commands": [
+          "curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION={{newVersion}} BIN_DIR=/tmp/ sh",
+          "/tmp/dagger -m {{packageFileDir}} develop"
         ],
-        "datasourceTemplate": "github-releases",
-        "depNameTemplate": "dagger/dagger"
+        // TODO "fileFilters": ["{{packageFileDir}}/**/*.*"], ?
+        "fileFilters": [
+          "**/**"
+        ],
+        "executionMode": "update"
       }
-    ],
-    "ignorePresets": [":ignorePaths"],
-    "ignorePaths": [ // overwrite defaults from "extends": ["config:recommended"],
-      "**/node_modules/**",
-      "**/bower_components/**",
-      "**/vendor/**",
-      // "**/examples/**",
-      "**/__tests__/**",
-      // "**/test/**",
-      // "**/tests/**",
-      "**/__fixtures__/**"
-    ],
-    "packageRules": [
-      {
-        "matchDepNames": ["dagger/dagger"],
-        "branchPrefix": "renovate/",
-        "commitMessagePrefix": "Module {{packageFileDir}} - ",
-        "additionalBranchPrefix": "{{packageFileDir}}-", // one PR for every module inside the repo
-        "postUpgradeTasks": {
-          "commands": [
-            "curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION={{newVersion}} BIN_DIR=/tmp/ sh",
-            "/tmp/dagger -m {{packageFileDir}} develop"
-          ],
-          // TODO "fileFilters": ["{{packageFileDir}}/**/*.*"], ?
-          "fileFilters": ["**/**"],
-          "executionMode": "update"
-        }
-      },
-      {
-          "matchFileNames": ["**/go.mod"], // go.mod is managed by dagger
-          "enabled": false
-      }
-        // TODO add exclusions for other Dagger SDK's
-    ],
-    "prHourlyLimit": 0,
-    "prConcurrentLimit": 0,
-    "branchConcurrentLimit": 0
+    },
+    {
+      "matchFileNames": [
+        "**/go.mod" // go.mod is managed by Dagger
+      ],
+      "enabled": false
+    }
+    // TODO add exclusions for other Dagger SDK's
+  ],
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 0,
+  "branchConcurrentLimit": 0
 }
