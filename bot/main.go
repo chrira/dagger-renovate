@@ -11,6 +11,7 @@ import (
 	"context"
 	"dagger/dagger-renovate/internal/dagger"
 	"fmt"
+	"time"
 )
 
 type DaggerRenovate struct{}
@@ -64,12 +65,9 @@ type DaggerRenovate struct{}
 			WithEnvVariable("RENOVATE_AUTODISCOVER", "false")
 	}
 
-
-	// TODO: cache buster needed?
-	// invalidate the cache to never cache the renovate execution
-	// WithEnvVariable("CACHEBUSTER", time.Now().String()).
-
 	return container.
+		// invalidate the cache to never cache the renovate execution
+		WithEnvVariable("CACHEBUSTER", time.Now().String()).
 		WithExec(
 			[]string{"renovate"},
 			dagger.ContainerWithExecOpts{
