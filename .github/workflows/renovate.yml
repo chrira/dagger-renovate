@@ -1,10 +1,15 @@
 name: Renovate
 
 on:
-  # configure manual trigger
-  workflow_dispatch:
+  # verify renovation works with main state
+  push:
+    branches:
+      - main
+  # run renovation scheduled
   schedule:
     - cron: "0 4 * * 1" # every Monday 04 AM
+  # configure manual trigger
+  workflow_dispatch:
 
 env:
   # The Dagger CLI uses the DAGGER_CLOUD_TOKEN environment variable to authenticate with Dagger Cloud
