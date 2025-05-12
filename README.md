@@ -1,6 +1,8 @@
 # renovate
 
-Update Dagger modules.
+Update [Dagger](https://dagger.io/) modules.
+
+See this [video](https://www.youtube.com/live/v8Zn1ZU5tP8?feature=shared&t=506) with explanations and a demo.
 
 ## Configure in GitHub
 
