@@ -31,4 +31,5 @@ jobs:
                 --github-read-token env:AUTH_TOKEN \
                 --github-write-token env:AUTH_TOKEN \
                 --renovate-repositories "['${GITHUB_REPOSITORY}']" \
-                --docker-sock /var/run/docker.sock
+                --docker-sock /var/run/docker.sock \
+                --show-debug-logs=true
